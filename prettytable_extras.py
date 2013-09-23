@@ -12,7 +12,9 @@ from prettytable import PrettyTable as PrettyTableCore, ALL, FRAME
 def get_terminal_size():
     def ioctl_GWINSZ(fd):
         try:
-            import fcntl, termios, struct
+            import fcntl
+            import termios
+            import struct
             cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
                                                  '1234'))
         except:
@@ -37,21 +39,21 @@ def get_terminal_size():
 
 COLOR_STYLES = {
     # styles
-    'bold'      : ['\033[1m',  '\033[22m'],
-    'italic'    : ['\033[3m',  '\033[23m'],
-    'underline' : ['\033[4m',  '\033[24m'],
-    'inverse'   : ['\033[7m',  '\033[27m'],
+    'bold':      ['\033[1m',  '\033[22m'],
+    'italic':    ['\033[3m',  '\033[23m'],
+    'underline': ['\033[4m',  '\033[24m'],
+    'inverse':   ['\033[7m',  '\033[27m'],
     # grayscale
-    'white'     : ['\033[37m', '\033[39m'],
-    'grey'      : ['\033[90m', '\033[39m'],
-    'black'     : ['\033[30m', '\033[39m'],
+    'white':     ['\033[37m', '\033[39m'],
+    'grey':      ['\033[90m', '\033[39m'],
+    'black':     ['\033[30m', '\033[39m'],
     # colors
-    'blue'      : ['\033[34m', '\033[39m'],
-    'cyan'      : ['\033[36m', '\033[39m'],
-    'green'     : ['\033[32m', '\033[39m'],
-    'magenta'   : ['\033[35m', '\033[39m'],
-    'red'       : ['\033[31m', '\033[39m'],
-    'yellow'    : ['\033[33m', '\033[39m'],
+    'blue':      ['\033[34m', '\033[39m'],
+    'cyan':      ['\033[36m', '\033[39m'],
+    'green':     ['\033[32m', '\033[39m'],
+    'magenta':   ['\033[35m', '\033[39m'],
+    'red':       ['\033[31m', '\033[39m'],
+    'yellow':    ['\033[33m', '\033[39m'],
 }
 
 
@@ -91,9 +93,11 @@ class PrettyTable(PrettyTableCore):
         try:
             assert val in available_colors + [None]
         except AssertionError:
-            raise Exception('Invalide color, use {} or None!'.format(', '.join(available_colors)))
+            raise Exception('Invalide color, use {} or None!'
+                            .format(', '.join(available_colors)))
 
-    def _optimize_widths(self, max_width=None, term_width=None, border_width=None):
+    def _optimize_widths(self, max_width=None, term_width=None,
+                         border_width=None):
         sum_width = sum(self._widths)
         avg_width = sum_width / len(self._widths)
 
@@ -152,7 +156,9 @@ class PrettyTable(PrettyTableCore):
 
             if options['header_color']:
                 fieldname = colorify(fieldname, options['header_color'])
-            bits.append(" " * lpad + self._justify(fieldname, width, self._align[field]) + " " * rpad)
+            bits.append(" " * lpad
+                        + self._justify(fieldname, width, self._align[field])
+                        + " " * rpad)
             if options["border"]:
                 if options["vrules"] == ALL:
                     bits.append(options["vertical_char"])
@@ -163,7 +169,7 @@ class PrettyTable(PrettyTableCore):
         if options["border"] and options["vrules"] == FRAME:
             bits.pop()
             bits.append(options["vertical_char"])
-        if options["border"] and options["hrules"] != None:
+        if options["border"] and options["hrules"] is not None:
             bits.append("\n")
             bits.append(self._hrule)
         return "".join(bits)
@@ -174,11 +180,14 @@ class PrettyTable(PrettyTableCore):
         lines = []
 
         # Don't think too hard about an empty table
-        # Is this the desired behaviour?  Maybe we should still print the header?
-        if self.rowcount == 0 and (not options["print_empty"] or not options["border"]):
+        # Is this the desired behaviour?
+        # Maybe we should still print the header?
+        if self.rowcount == 0 and (not options["print_empty"]
+                                   or not options["border"]):
             return ""
 
-        # Get the rows we need to print, taking into account slicing, sorting, etc.
+        # Get the rows we need to print, taking into account slicing,
+        # sorting, etc.
         rows = self._get_rows(options)
 
         # Turn all data in all rows into Unicode, formatted as desired
@@ -220,7 +229,7 @@ def main():
     x.reversesort = True
     x.int_format["Area"] = "04d"
     x.float_format = "6.1f"
-    x.align["City name"] = "l" # Left align city names
+    x.align["City name"] = "l"  # Left align city names
     x.add_row(["Adelaide", 1295, 1158259, 600.5])
     x.add_row(["Brisbane", 5905, 1857594, 1146.4])
     x.add_row(["Darwin", 112, 120900, 1714.7])
