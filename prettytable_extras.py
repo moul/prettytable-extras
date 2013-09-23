@@ -96,10 +96,14 @@ class PrettyTable(PrettyTableCore):
             raise Exception('Invalide color, use {} or None!'
                             .format(', '.join(available_colors)))
 
-    def _optimize_widths(self, max_width=None, term_width=None,
-                         border_width=None):
+    def _optimize_widths(self, options=None, max_width=None,
+                         term_width=None, border_width=None):
+        if not options:
+            options = self._get_options()
+        lpad, rpad = self._get_padding_widths(options)
+
         if not border_width:
-            border_width = len(self._widths) * 3 + 1
+            border_width = len(self._widths) * (1 + lpad + rpad) + 1
 
         if not term_width:
             term_width, term_height = get_terminal_size()
@@ -194,7 +198,7 @@ class PrettyTable(PrettyTableCore):
         self._compute_widths(formatted_rows, options)
 
         if options.get('auto_width', False):
-            self._optimize_widths()
+            self._optimize_widths(options)
 
         # Add header or top of border
         self._hrule = self._stringify_hrule(options)
@@ -221,7 +225,8 @@ class PrettyTable(PrettyTableCore):
 def main():
 
     x = PrettyTable(["City name", "Area", "Population", "Annual Rainfall"],
-                    auto_width=True, border=True, header_color='yellow')
+                    auto_width=True, border=True, header_color='yellow',
+                    left_padding_width=3, right_padding_width=3)
     x.sortby = "Population"
     x.reversesort = True
     x.int_format["Area"] = "04d"
