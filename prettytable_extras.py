@@ -36,8 +36,22 @@ def get_terminal_size():
 
 
 COLOR_STYLES = {
-    'blue': ['\033[34m', '\033[39m'],
-    'red':  ['\033[31m', '\033[39m'],
+    # styles
+    'bold'      : ['\033[1m',  '\033[22m'],
+    'italic'    : ['\033[3m',  '\033[23m'],
+    'underline' : ['\033[4m',  '\033[24m'],
+    'inverse'   : ['\033[7m',  '\033[27m'],
+    # grayscale
+    'white'     : ['\033[37m', '\033[39m'],
+    'grey'      : ['\033[90m', '\033[39m'],
+    'black'     : ['\033[30m', '\033[39m'],
+    # colors
+    'blue'      : ['\033[34m', '\033[39m'],
+    'cyan'      : ['\033[36m', '\033[39m'],
+    'green'     : ['\033[32m', '\033[39m'],
+    'magenta'   : ['\033[35m', '\033[39m'],
+    'red'       : ['\033[31m', '\033[39m'],
+    'yellow'    : ['\033[33m', '\033[39m'],
 }
 
 
@@ -201,7 +215,7 @@ class PrettyTable(PrettyTableCore):
 def main():
 
     x = PrettyTable(["City name", "Area", "Population", "Annual Rainfall"],
-                    auto_width=True, border=True, header_color='blue')
+                    auto_width=True, border=True, header_color='yellow')
     x.sortby = "Population"
     x.reversesort = True
     x.int_format["Area"] = "04d"
