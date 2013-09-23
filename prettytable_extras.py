@@ -4,6 +4,7 @@
 
 __version__ = '0.1.0'
 
+
 import os
 
 from prettytable import PrettyTable as PrettyTableCore, ALL, FRAME

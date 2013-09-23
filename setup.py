@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
-from prettytable_extras import __version__ as version
 
 
 setup(
     name='prettytable-extras',
-    version=version,
+    version='0.1.0',
     packages=find_packages(),
     classifiers=[
         'Programming Language :: Python',
