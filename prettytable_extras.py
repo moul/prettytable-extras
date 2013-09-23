@@ -58,10 +58,12 @@ COLOR_STYLES = {
 }
 
 
-def colorify(val, color):
+def colorify(text, colors):
     """Prefix and suffix text to render terminal color"""
-    style = COLOR_STYLES[color]
-    return '{}{}{}'.format(style[0], val, style[1])
+    for color in colors:
+        style = COLOR_STYLES[color]
+        text = '{}{}{}'.format(style[0], text, style[1])
+    return text
 
 
 class PrettyTable(PrettyTableCore):
@@ -78,7 +80,7 @@ class PrettyTable(PrettyTableCore):
                 kwargs[option] = None
 
         self._auto_width = kwargs['auto_width'] or False
-        self._header_color = kwargs['header_color'] or None
+        self._header_color = kwargs['header_color'] and kwargs['header_color'].split(',') or None
 
         self._options.extend(new_options)
 
@@ -94,11 +96,13 @@ class PrettyTable(PrettyTableCore):
 
     def _validate_color(self, option, val):
         available_colors = COLOR_STYLES.keys()
-        try:
-            assert val in available_colors + [None]
-        except AssertionError:
-            raise Exception('Invalide color, use {} or None!'
-                            .format(', '.join(available_colors)))
+        if val:
+            for color in val.split(','):
+                try:
+                    assert color in available_colors
+                except AssertionError:
+                    raise Exception('Invalide color, use {} or None!'
+                                    .format(', '.join(available_colors)))
 
     def _optimize_widths(self, options=None, max_width=None,
                          term_width=None, border_width=None):
@@ -234,7 +238,7 @@ class PrettyTable(PrettyTableCore):
 def main():
 
     x = PrettyTable(["City name", "Area", "Population", "Annual Rainfall"],
-                    auto_width=True, border=True, header_color='yellow',
+                    auto_width=True, border=True, header_color='yellow,bold',
                     left_padding_width=3, right_padding_width=3)
     x.sortby = "Population"
     x.reversesort = True
