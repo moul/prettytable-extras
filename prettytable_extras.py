@@ -10,6 +10,7 @@ from prettytable import PrettyTable as PrettyTableCore, ALL, FRAME
 
 
 def get_terminal_size():
+    """Returns terminal width and height"""
     def ioctl_GWINSZ(fd):
         try:
             import fcntl
@@ -58,6 +59,7 @@ COLOR_STYLES = {
 
 
 def colorify(val, color):
+    """Prefix and suffix text to render terminal color"""
     style = COLOR_STYLES[color]
     return '{}{}{}'.format(style[0], val, style[1])
 
@@ -81,6 +83,8 @@ class PrettyTable(PrettyTableCore):
         self._options.extend(new_options)
 
     def _validate_new_option(self, option, val):
+        """Same as _validate_option for prettytable_extra specific options"""
+
         if option in ('auto_width'):
             self._validate_true_or_false(option, val)
         elif option in ('header_color'):
@@ -98,6 +102,11 @@ class PrettyTable(PrettyTableCore):
 
     def _optimize_widths(self, options=None, max_width=None,
                          term_width=None, border_width=None):
+        """Update widths to match the current terminal size
+
+        Arguments:
+
+        options - dictionary of options settings."""
         if not options:
             options = self._get_options()
         lpad, rpad = self._get_padding_widths(options)
