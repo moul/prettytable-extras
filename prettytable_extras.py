@@ -35,10 +35,21 @@ def get_terminal_size():
     return int(cr[1]), int(cr[0])
 
 
+COLOR_STYLES = {
+    'blue': ['\033[34m', '\033[39m'],
+    'red':  ['\033[31m', '\033[39m'],
+}
+
+
+def colorify(val, color):
+    style = COLOR_STYLES[color]
+    return '{}{}{}'.format(style[0], val, style[1])
+
+
 class PrettyTable(PrettyTableCore):
 
     def __init__(self, field_names=None, **kwargs):
-        new_options = ['auto_width']
+        new_options = ['auto_width', 'header_color']
 
         super(PrettyTable, self).__init__(field_names, **kwargs)
 
@@ -49,14 +60,24 @@ class PrettyTable(PrettyTableCore):
                 kwargs[option] = None
 
         self._auto_width = kwargs['auto_width'] or False
+        self._header_color = kwargs['header_color'] or None
 
         self._options.extend(new_options)
 
     def _validate_new_option(self, option, val):
         if option in ('auto_width'):
             self._validate_true_or_false(option, val)
+        elif option in ('header_color'):
+            self._validate_color(option, val)
         else:
             raise Exception('Unrecognised option: {}!'.format(option))
+
+    def _validate_color(self, option, val):
+        available_colors = COLOR_STYLES.keys()
+        try:
+            assert val in available_colors + [None]
+        except AssertionError:
+            raise Exception('Invalide color, use {} or None!'.format(', '.join(available_colors)))
 
     def _optimize_widths(self, max_width=None, term_width=None, border_width=None):
         sum_width = sum(self._widths)
@@ -82,6 +103,56 @@ class PrettyTable(PrettyTableCore):
                     else:
                         self._widths[i] = int(width / 2)
                     break
+
+    def _stringify_header(self, options):
+
+        bits = []
+        lpad, rpad = self._get_padding_widths(options)
+        if options["border"]:
+            if options["hrules"] in (ALL, FRAME):
+                bits.append(self._hrule)
+                bits.append("\n")
+            if options["vrules"] in (ALL, FRAME):
+                bits.append(options["vertical_char"])
+            else:
+                bits.append(" ")
+        # For tables with no data or field names
+        if not self._field_names:
+            if options["vrules"] in (ALL, FRAME):
+                bits.append(options["vertical_char"])
+            else:
+                bits.append(" ")
+        for field, width, in zip(self._field_names, self._widths):
+            if options["fields"] and field not in options["fields"]:
+                continue
+            if self._header_style == "cap":
+                fieldname = field.capitalize()
+            elif self._header_style == "title":
+                fieldname = field.title()
+            elif self._header_style == "upper":
+                fieldname = field.upper()
+            elif self._header_style == "lower":
+                fieldname = field.lower()
+            else:
+                fieldname = field
+
+            if options['header_color']:
+                fieldname = colorify(fieldname, options['header_color'])
+            bits.append(" " * lpad + self._justify(fieldname, width, self._align[field]) + " " * rpad)
+            if options["border"]:
+                if options["vrules"] == ALL:
+                    bits.append(options["vertical_char"])
+                else:
+                    bits.append(" ")
+        # If vrules is FRAME, then we just appended a space at the end
+        # of the last field, when we really want a vertical character
+        if options["border"] and options["vrules"] == FRAME:
+            bits.pop()
+            bits.append(options["vertical_char"])
+        if options["border"] and options["hrules"] != None:
+            bits.append("\n")
+            bits.append(self._hrule)
+        return "".join(bits)
 
     def get_string(self, **kwargs):
         options = self._get_options(kwargs)
@@ -129,7 +200,8 @@ class PrettyTable(PrettyTableCore):
 
 def main():
 
-    x = PrettyTable(["City name", "Area", "Population", "Annual Rainfall"], auto_width=True)
+    x = PrettyTable(["City name", "Area", "Population", "Annual Rainfall"],
+                    auto_width=True, border=True, header_color='blue')
     x.sortby = "Population"
     x.reversesort = True
     x.int_format["Area"] = "04d"
