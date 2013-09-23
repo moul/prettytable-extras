@@ -37,6 +37,27 @@ def get_terminal_size():
 
 class PrettyTable(PrettyTableCore):
 
+    def __init__(self, field_names=None, **kwargs):
+        new_options = ['auto_width']
+
+        super(PrettyTable, self).__init__(field_names, **kwargs)
+
+        for option in new_options:
+            if option in kwargs:
+                self._validate_new_option(option, kwargs[option])
+            else:
+                kwargs[option] = None
+
+        self._auto_width = kwargs['auto_width'] or False
+
+        self._options.extend(new_options)
+
+    def _validate_new_option(self, option, val):
+        if option in ('auto_width'):
+            self._validate_true_or_false(option, val)
+        else:
+            raise Exception('Unrecognised option: {}!'.format(option))
+
     def _optimize_widths(self, max_width=None, term_width=None, border_width=None):
         sum_width = sum(self._widths)
         avg_width = sum_width / len(self._widths)
@@ -81,7 +102,8 @@ class PrettyTable(PrettyTableCore):
         # Compute column widths
         self._compute_widths(formatted_rows, options)
 
-        self._optimize_widths()
+        if options.get('auto_width', False):
+            self._optimize_widths()
 
         # Add header or top of border
         self._hrule = self._stringify_hrule(options)
@@ -107,7 +129,7 @@ class PrettyTable(PrettyTableCore):
 
 def main():
 
-    x = PrettyTable(["City name", "Area", "Population", "Annual Rainfall"])
+    x = PrettyTable(["City name", "Area", "Population", "Annual Rainfall"], auto_width=True)
     x.sortby = "Population"
     x.reversesort = True
     x.int_format["Area"] = "04d"
@@ -118,9 +140,10 @@ def main():
     x.add_row(["Darwin", 112, 120900, 1714.7])
     x.add_row(["Hobart", 1357, 205556, 619.5])
     x.add_row(["Sydney", 2058, 4336374, 1214.8])
-    x.add_row(["Melbourne", 1566, 3806092, 646.9])
+    x.add_row(["Melbourne City", 1566, 3806092, 646.9])
     x.add_row(["Perth", 5386, 1554769, 869.4])
     print(x)
+
 
 if __name__ == "__main__":
     main()
