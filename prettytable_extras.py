@@ -15,26 +15,26 @@ def get_terminal_size():
             import fcntl
             import termios
             import struct
-            cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
-                                                 '1234'))
+            dim = struct.unpack('hh',
+                                fcntl.ioctl(fd, termios.TIOCGWINSZ, '1234'))
         except:
             return
-        return cr
+        return dim
 
-    cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
+    dim = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
 
-    if not cr:
+    if not dim:
         try:
-            fd = os.open(os.ctermid(), os.O_RDONLY)
-            cr = ioctl_GWINSZ(fd)
-            os.close(fd)
+            file_descriptor = os.open(os.ctermid(), os.O_RDONLY)
+            dim = ioctl_GWINSZ(file_descriptor)
+            os.close(file_descriptor)
         except:
             pass
 
-    if not cr:
-        cr = (os.environ.get('LINES', 25), os.environ.get('COLUMNS', 80))
+    if not dim:
+        dim = (os.environ.get('LINES', 25), os.environ.get('COLUMNS', 80))
 
-    return int(cr[1]), int(cr[0])
+    return int(dim[1]), int(dim[0])
 
 
 COLOR_STYLES = {
@@ -98,9 +98,6 @@ class PrettyTable(PrettyTableCore):
 
     def _optimize_widths(self, max_width=None, term_width=None,
                          border_width=None):
-        sum_width = sum(self._widths)
-        avg_width = sum_width / len(self._widths)
-
         if not border_width:
             border_width = len(self._widths) * 3 + 1
 
